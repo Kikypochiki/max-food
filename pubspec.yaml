@@ -2,7 +2,7 @@ name: max_food
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -30,6 +30,20 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Backend
+  supabase_flutter: ^2.5.0
+  # State management
+  flutter_riverpod: ^2.5.1
+  # Navigation
+  go_router: ^13.0.0
+  # Images
+  cached_network_image: ^3.3.1
+  image_picker: ^1.1.1
+  # UI helpers
+  flutter_svg: ^2.0.10
+  shimmer: ^3.0.0
+  # Notifications
+  flutter_local_notifications: ^17.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -51,16 +65,14 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
