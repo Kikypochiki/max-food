@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -22,9 +23,9 @@ class LandingPage extends StatelessWidget {
                       width: 200,
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           'Ubay',
                           style: TextStyle(
@@ -69,7 +70,7 @@ class LandingPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () => context.go('/sign-up'),
                     child: const Text(
                       "Get Started",
                       style: TextStyle(
@@ -88,7 +89,7 @@ class LandingPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () => context.go('/login'),
                     child: const Text(
                       "Login",
                       style: TextStyle(
