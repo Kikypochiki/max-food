@@ -10,7 +10,6 @@ Future<void> main() async {
   await Supabase.initialize(
     url: Env.supabaseUrl,
     anonKey: Env.supabaseAnonKey,
-    authCallbackUrlHostname: 'login-callback',
   );
 
   runApp(const ProviderScope(child: UbayHarvest()));
