@@ -40,7 +40,37 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     if (!mounted) return;
 
     if (success) {
-      context.go('/home');
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Check your email',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'We sent a verification link to your email address. Please click it to activate your account.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.pop(); // close dialog
+                context.go('/login');
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Color(0xFF29A300),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     } else {
       final error = ref.read(authControllerProvider).error;
       ScaffoldMessenger.of(context).showSnackBar(
