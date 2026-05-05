@@ -17,22 +17,28 @@ class AuthRepository {
     required String email,
     required String password,
     String? fullName,
-  }) {
-    return _client.auth.signUp(
+  }) async {
+    final response = await _client.auth.signUp(
       email: email,
       password: password,
       data: fullName != null ? {'full_name': fullName} : null,
     );
+
+    // Supabase can return no user/session (for example, duplicate email) without throwing.
+    if (response.user == null && response.session == null) {
+      throw const AuthException(
+        'Sign-up did not complete. The email may already be registered or your auth settings may require confirmation.',
+      );
+    }
+
+    return response;
   }
 
   Future<AuthResponse> signIn({
     required String email,
     required String password,
   }) {
-    return _client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    return _client.auth.signInWithPassword(email: email, password: password);
   }
 
   Future<void> signOut() {

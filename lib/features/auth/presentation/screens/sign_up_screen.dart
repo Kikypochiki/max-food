@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:max_food/features/auth/presentation/providers/auth_providers.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -31,7 +32,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Future<void> _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final success = await ref.read(authControllerProvider.notifier).signUp(
+    final success = await ref
+        .read(authControllerProvider.notifier)
+        .signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
           fullName: _nameController.text.trim(),
@@ -75,11 +78,32 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       final error = ref.read(authControllerProvider).error;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.toString()),
+          content: Text(_friendlySignUpError(error)),
           backgroundColor: Colors.red.shade700,
         ),
       );
     }
+  }
+
+  String _friendlySignUpError(Object? error) {
+    if (error is AuthException) {
+      final message = error.message.toLowerCase();
+      if (message.contains('already') || message.contains('registered')) {
+        return 'This email is already registered. Try logging in instead.';
+      }
+      if (message.contains('invalid email')) {
+        return 'Please use a valid email address.';
+      }
+      if (message.contains('password')) {
+        return 'Password does not meet requirements. Use at least 6 characters.';
+      }
+      if (message.contains('network') || message.contains('socket')) {
+        return 'Network error while signing up. Check your connection and try again.';
+      }
+      return error.message;
+    }
+
+    return 'Sign-up failed. Please try again.';
   }
 
   @override
@@ -125,10 +149,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 const Text(
                   'Sign up to get started',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF757575),
-                  ),
+                  style: TextStyle(fontSize: 16, color: Color(0xFF757575)),
                 ),
                 const SizedBox(height: 32),
                 _buildTextField(
@@ -203,7 +224,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       color: const Color(0xFF757575),
                     ),
                     onPressed: () => setState(
-                        () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -250,10 +272,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   children: [
                     const Text(
                       'Already have an account? ',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF757575),
-                      ),
+                      style: TextStyle(fontSize: 14, color: Color(0xFF757575)),
                     ),
                     GestureDetector(
                       onTap: () => context.go('/login'),
