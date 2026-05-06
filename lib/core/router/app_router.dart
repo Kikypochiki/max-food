@@ -8,6 +8,8 @@ import 'package:max_food/features/auth/presentation/screens/landing_page.dart';
 import 'package:max_food/features/auth/presentation/screens/login_screen.dart';
 import 'package:max_food/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:max_food/features/home/presentation/screens/home_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/create_listing_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/farmer_listings_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
@@ -47,21 +49,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const LandingPage(),
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const LandingPage()),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/sign-up',
         builder: (context, state) => const SignUpScreen(),
       ),
+      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
       GoRoute(
-        path: '/home',
-        builder: (context, state) => const HomeScreen(),
+        path: '/listings/create',
+        builder: (context, state) => const CreateListingScreen(),
+      ),
+      GoRoute(
+        path: '/farmers/:farmerUserId/listings',
+        builder: (context, state) => FarmerListingsScreen(
+          farmerUserId: state.pathParameters['farmerUserId']!,
+        ),
       ),
     ],
   );
