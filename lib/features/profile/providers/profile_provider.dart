@@ -43,6 +43,7 @@ class ProfileNotifier extends StateNotifier<AsyncValue<ProfileModel?>> {
   }
 
   Future<void> updateProfile({
+    String? fullName,
     String? avatarUrl,
     String? deliveryAddress,
     bool showLoading = true,
@@ -55,10 +56,12 @@ class ProfileNotifier extends StateNotifier<AsyncValue<ProfileModel?>> {
 
       final updates = {
         'id': user.id,
+        'full_name': ?fullName,
         'avatar_url': ?avatarUrl,
         'delivery_address': ?deliveryAddress,
         'updated_at': DateTime.now().toIso8601String(),
       };
+
 
       final response = await _supabase
           .from('profiles')
@@ -103,3 +106,15 @@ class ProfileNotifier extends StateNotifier<AsyncValue<ProfileModel?>> {
     }
   }
 }
+
+final otherProfileProvider = FutureProvider.family.autoDispose<ProfileModel?, String>((ref, userId) async {
+  final client = ref.watch(supabaseClientProvider);
+  final response = await client
+      .from('profiles')
+      .select()
+      .eq('id', userId)
+      .maybeSingle();
+  if (response == null) return null;
+  return ProfileModel.fromJson(response);
+});
+

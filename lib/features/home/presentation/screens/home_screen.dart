@@ -42,7 +42,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => context.push('/farmers/${listing.farmerUserId}/listings'),
+        onTap: () => context.push('/listings/${listing.listingId}'),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
@@ -209,6 +209,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onPressed: user == null
                 ? null
                 : () => context.push('/farmers/${user.id}/listings'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chat_outlined, size: 26),
+            tooltip: 'Inbox',
+            onPressed: () => context.push('/chat/inbox'),
           ),
           IconButton(
             icon: const Icon(Icons.person_outline, size: 26),

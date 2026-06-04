@@ -10,7 +10,10 @@ import 'package:max_food/features/auth/presentation/screens/sign_up_screen.dart'
 import 'package:max_food/features/home/presentation/screens/home_screen.dart';
 import 'package:max_food/features/listings/presentation/screens/create_listing_screen.dart';
 import 'package:max_food/features/listings/presentation/screens/farmer_listings_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/listing_detail_screen.dart';
 import 'package:max_food/features/profile/screens/profile_screen.dart';
+import 'package:max_food/features/chat/presentation/screens/chat_inbox_screen.dart';
+import 'package:max_food/features/chat/presentation/screens/chat_room_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
@@ -62,6 +65,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const CreateListingScreen(),
       ),
       GoRoute(
+        path: '/listings/:listingId',
+        builder: (context, state) => ListingDetailScreen(
+          listingId: state.pathParameters['listingId']!,
+        ),
+      ),
+      GoRoute(
         path: '/farmers/:farmerUserId/listings',
         builder: (context, state) => FarmerListingsScreen(
           farmerUserId: state.pathParameters['farmerUserId']!,
@@ -71,6 +80,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
       ),
+      GoRoute(
+        path: '/chat/inbox',
+        builder: (context, state) => const ChatInboxScreen(),
+      ),
+      GoRoute(
+        path: '/chat/room/:roomId',
+        builder: (context, state) => ChatRoomScreen(
+          roomId: state.pathParameters['roomId']!,
+        ),
+      ),
     ],
   );
 });
+
