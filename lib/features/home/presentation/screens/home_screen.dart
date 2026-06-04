@@ -204,20 +204,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: const Color(0xFF2A8F3A),
-        titleSpacing: 0,
-        leading: Container(
-          padding: const EdgeInsets.only(left: 12),
-          alignment: Alignment.centerLeft,
-          child: const Text(
-            'UbayHarvest',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
+        titleSpacing: 12,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'UbayHarvest',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
           ),
         ),
-        leadingWidth: 160,
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 26),
