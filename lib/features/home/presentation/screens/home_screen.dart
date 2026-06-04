@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:max_food/features/auth/data/auth_repository.dart';
-import 'package:max_food/features/auth/presentation/providers/auth_providers.dart';
 import 'package:max_food/features/listings/data/listing_repository.dart';
 import 'package:max_food/features/listings/presentation/providers/listing_providers.dart';
+import 'package:max_food/features/listings/models/notification_model.dart';
+import 'package:max_food/features/listings/presentation/providers/alert_providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -165,6 +166,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<List<NotificationModel>>>(
+      notificationsProvider,
+      (previous, next) {
+        final prevList = previous?.valueOrNull;
+        final nextList = next.valueOrNull;
+
+        if (nextList != null && prevList != null && nextList.length > prevList.length) {
+          final newNotifications = nextList
+              .where((item) => !prevList.any((prev) => prev.id == item.id))
+              .toList();
+          for (final notification in newNotifications) {
+            if (!notification.isRead) {
+              _showInAppNotificationBanner(context, notification);
+            }
+          }
+        }
+      },
+    );
+
     final user = ref.watch(authRepositoryProvider).currentUser;
     final listingsAsync = ref.watch(filteredMarketplaceListingsProvider);
     final query = ref.watch(listingSearchQueryProvider);
@@ -196,7 +216,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
         ),
-        leadingWidth: 180,
+        leadingWidth: 160,
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 26),
@@ -210,21 +230,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ? null
                 : () => context.push('/farmers/${user.id}/listings'),
           ),
-          IconButton(
-            icon: const Icon(Icons.chat_outlined, size: 26),
-            tooltip: 'Inbox',
-            onPressed: () => context.push('/chat/inbox'),
+          Consumer(
+            builder: (context, ref, child) {
+              final unreadMsgs = ref.watch(unreadMessageNotificationsCountProvider);
+              return Badge(
+                isLabelVisible: unreadMsgs > 0,
+                label: Text(unreadMsgs.toString()),
+                backgroundColor: const Color(0xFFB3261E),
+                child: IconButton(
+                  icon: const Icon(Icons.chat_outlined, size: 26),
+                  tooltip: 'Inbox',
+                  onPressed: () => context.push('/chat/inbox'),
+                ),
+              );
+            },
+          ),
+          Consumer(
+            builder: (context, ref, child) {
+              final unreadAlerts = ref.watch(unreadNotificationsCountProvider);
+              return Badge(
+                isLabelVisible: unreadAlerts > 0,
+                label: Text(unreadAlerts.toString()),
+                backgroundColor: const Color(0xFFB3261E),
+                child: IconButton(
+                  icon: const Icon(Icons.notifications_outlined, size: 26),
+                  tooltip: 'Notifications',
+                  onPressed: () => context.push('/notifications'),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.person_outline, size: 26),
             tooltip: 'My Profile',
             onPressed: () => context.push('/profile'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout_outlined),
-            onPressed: () {
-              ref.read(authControllerProvider.notifier).signOut();
-            },
           ),
         ],
       ),
@@ -343,6 +382,183 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showInAppNotificationBanner(BuildContext context, NotificationModel notification) {
+    late final OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 10,
+        left: 0,
+        right: 0,
+        child: InAppNotificationToast(
+          notification: notification,
+          onDismiss: () => overlayEntry.remove(),
+          onTap: () {
+            ref.read(notificationsControllerProvider.notifier).markAsRead(notification.id);
+            
+            final data = notification.data;
+            if (notification.type == 'new_listing' && data != null) {
+              final listingId = data['listing_id']?.toString();
+              if (listingId != null) {
+                context.push('/listings/$listingId');
+              }
+            } else if (notification.type == 'new_message' && data != null) {
+              final roomId = data['room_id']?.toString();
+              if (roomId != null) {
+                context.push('/chat/room/$roomId');
+              }
+            }
+          },
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry);
+  }
+}
+
+class InAppNotificationToast extends StatefulWidget {
+  final NotificationModel notification;
+  final VoidCallback onDismiss;
+  final VoidCallback onTap;
+
+  const InAppNotificationToast({
+    required this.notification,
+    required this.onDismiss,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  State<InAppNotificationToast> createState() => _InAppNotificationToastState();
+}
+
+class _InAppNotificationToastState extends State<InAppNotificationToast> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Offset> _offsetAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _offsetAnimation = Tween<Offset>(
+      begin: const Offset(0, -1.2),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+
+    _controller.forward();
+
+    Future.delayed(const Duration(seconds: 4), () {
+      if (mounted) {
+        _dismiss();
+      }
+    });
+  }
+
+  void _dismiss() async {
+    await _controller.reverse();
+    widget.onDismiss();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = widget.notification.type == 'new_message'
+        ? Icons.chat_bubble_outline
+        : Icons.notifications_active_outlined;
+
+    return SlideTransition(
+      position: _offsetAnimation,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                widget.onTap();
+                _dismiss();
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: const Color(0xFFC2E2C8), width: 1.5),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE7F4E9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, color: const Color(0xFF2A8F3A), size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.notification.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                              color: Color(0xFF1D4F2A),
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            widget.notification.body,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF4A5A4F),
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 18, color: Color(0xFF667A6C)),
+                      onPressed: _dismiss,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

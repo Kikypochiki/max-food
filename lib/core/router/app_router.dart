@@ -11,6 +11,8 @@ import 'package:max_food/features/home/presentation/screens/home_screen.dart';
 import 'package:max_food/features/listings/presentation/screens/create_listing_screen.dart';
 import 'package:max_food/features/listings/presentation/screens/farmer_listings_screen.dart';
 import 'package:max_food/features/listings/presentation/screens/listing_detail_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/alert_management_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/notification_center_screen.dart';
 import 'package:max_food/features/profile/screens/profile_screen.dart';
 import 'package:max_food/features/chat/presentation/screens/chat_inbox_screen.dart';
 import 'package:max_food/features/chat/presentation/screens/chat_room_screen.dart';
@@ -89,6 +91,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ChatRoomScreen(
           roomId: state.pathParameters['roomId']!,
         ),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationCenterScreen(),
+      ),
+      GoRoute(
+        path: '/alerts/manage',
+        builder: (context, state) => const AlertManagementScreen(),
       ),
     ],
   );

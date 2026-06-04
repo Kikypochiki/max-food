@@ -168,6 +168,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 12),
                   _InfoCard(
+                    icon: Icons.notifications_none_outlined,
+                    title: 'Listing alert preferences',
+                    value: 'Manage alert preferences for product categories & farmers',
+                    actionLabel: 'Manage',
+                    onAction: () => context.push('/alerts/manage'),
+                  ),
+                  const SizedBox(height: 12),
+                  _InfoCard(
                     icon: Icons.verified_user_outlined,
                     title: 'Account status',
                     value: 'Ready to buy and manage harvest listings',
