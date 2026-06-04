@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:max_food/features/auth/data/auth_repository.dart';
@@ -388,6 +389,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _showInAppNotificationBanner(BuildContext context, NotificationModel notification) {
+    HapticFeedback.mediumImpact();
     late final OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
