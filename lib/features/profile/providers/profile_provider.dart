@@ -1,13 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:max_food/core/providers/supabase_providers.dart';
+import 'package:max_food/features/auth/presentation/providers/auth_providers.dart';
 import '../models/profile_model.dart';
 
-final supabaseClientProvider = Provider<SupabaseClient>((ref) {
-  return Supabase.instance.client;
-});
-
 final profileProvider = StateNotifierProvider<ProfileNotifier, AsyncValue<ProfileModel?>>((ref) {
+  ref.watch(authStateProvider);
   return ProfileNotifier(ref.watch(supabaseClientProvider));
 });
 
@@ -33,7 +32,6 @@ class ProfileNotifier extends StateNotifier<AsyncValue<ProfileModel?>> {
           .maybeSingle();
 
       if (response == null) {
-        // Profile doesn't exist yet, we can return a default empty profile
         final emptyProfile = ProfileModel(id: user.id);
         state = AsyncValue.data(emptyProfile);
       } else {
