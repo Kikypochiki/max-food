@@ -211,6 +211,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 : () => context.push('/farmers/${user.id}/listings'),
           ),
           IconButton(
+            icon: const Icon(Icons.person_outline, size: 26),
+            tooltip: 'My Profile',
+            onPressed: () => context.push('/profile'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout_outlined),
             onPressed: () {
               ref.read(authControllerProvider.notifier).signOut();

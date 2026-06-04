@@ -37,13 +37,7 @@ dependencies:
   # Navigation
   go_router: ^13.0.0
   # Images
-  cached_network_image: ^3.3.1
   image_picker: ^1.1.1
-  # UI helpers
-  flutter_svg: ^2.0.10
-  shimmer: ^3.0.0
-  # Notifications
-  flutter_local_notifications: ^17.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

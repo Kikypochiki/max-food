@@ -10,6 +10,7 @@ import 'package:max_food/features/auth/presentation/screens/sign_up_screen.dart'
 import 'package:max_food/features/home/presentation/screens/home_screen.dart';
 import 'package:max_food/features/listings/presentation/screens/create_listing_screen.dart';
 import 'package:max_food/features/listings/presentation/screens/farmer_listings_screen.dart';
+import 'package:max_food/features/profile/screens/profile_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
@@ -65,6 +66,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => FarmerListingsScreen(
           farmerUserId: state.pathParameters['farmerUserId']!,
         ),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );
