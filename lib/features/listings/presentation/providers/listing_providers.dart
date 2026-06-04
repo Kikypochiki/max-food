@@ -158,3 +158,13 @@ final listingCrudControllerProvider =
     AsyncNotifierProvider<ListingCrudController, void>(
       ListingCrudController.new,
     );
+
+final singleListingProvider = FutureProvider.family.autoDispose<ListingItem?, String>((ref, listingId) async {
+  final listings = await ref.watch(marketplaceListingsProvider.future);
+  try {
+    return listings.firstWhere((element) => element.listingId == listingId);
+  } catch (_) {
+    return null;
+  }
+});
+
