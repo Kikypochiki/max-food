@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:max_food/features/listings/data/listing_repository.dart';
 import 'package:max_food/features/listings/presentation/providers/listing_providers.dart';
+import 'package:max_food/features/listings/presentation/providers/alert_providers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FarmerListingsScreen extends ConsumerStatefulWidget {
@@ -320,6 +321,47 @@ class _FarmerListingsScreenState extends ConsumerState<FarmerListingsScreen> {
               tooltip: 'Add item',
               onPressed: () => context.push('/listings/create'),
               icon: const Icon(Icons.add_circle_outline, size: 26),
+            )
+          else
+            Consumer(
+              builder: (context, ref, child) {
+                final subsAsync = ref.watch(alertSubscriptionsProvider);
+                return subsAsync.maybeWhen(
+                  data: (subs) {
+                    final isSubscribed = subs.any((sub) => sub.farmerId == widget.farmerUserId);
+                    return IconButton(
+                      tooltip: isSubscribed ? 'Mute Alerts' : 'Alert Me on New Harvests',
+                      onPressed: () async {
+                        try {
+                          await ref
+                              .read(alertSubscriptionsProvider.notifier)
+                              .toggleFarmerSubscription(widget.farmerUserId, !isSubscribed);
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                isSubscribed
+                                    ? 'Unsubscribed from listing alerts'
+                                    : 'Subscribed to listing alerts!',
+                              ),
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to toggle alerts: $e')),
+                          );
+                        }
+                      },
+                      icon: Icon(
+                        isSubscribed ? Icons.notifications_active : Icons.notifications_none_outlined,
+                        size: 26,
+                      ),
+                    );
+                  },
+                  orElse: () => const SizedBox.shrink(),
+                );
+              },
             ),
         ],
       ),
