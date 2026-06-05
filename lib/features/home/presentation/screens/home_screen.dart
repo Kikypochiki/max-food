@@ -204,26 +204,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: const Color(0xFF2A8F3A),
-        titleSpacing: 12,
+        titleSpacing: 16,
         centerTitle: false,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'UbayHarvest',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                'assets/images/logo_ubayharvest1.png',
+                height: 32,
+                width: 32,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'UbayHarvest',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline, size: 26),
+            icon: const Icon(Icons.add_circle_outline, size: 24),
             tooltip: 'Create listing',
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            constraints: const BoxConstraints(),
             onPressed: () => context.push('/listings/create'),
           ),
           IconButton(
-            icon: const Icon(Icons.store_outlined, size: 26),
+            icon: const Icon(Icons.store_outlined, size: 24),
             tooltip: 'My listings',
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            constraints: const BoxConstraints(),
             onPressed: user == null
                 ? null
                 : () => context.push('/farmers/${user.id}/listings'),
@@ -236,8 +256,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 label: Text(unreadMsgs.toString()),
                 backgroundColor: const Color(0xFFB3261E),
                 child: IconButton(
-                  icon: const Icon(Icons.chat_outlined, size: 26),
+                  icon: const Icon(Icons.chat_outlined, size: 24),
                   tooltip: 'Inbox',
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  constraints: const BoxConstraints(),
                   onPressed: () => context.push('/chat/inbox'),
                 ),
               );
@@ -251,18 +273,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 label: Text(unreadAlerts.toString()),
                 backgroundColor: const Color(0xFFB3261E),
                 child: IconButton(
-                  icon: const Icon(Icons.notifications_outlined, size: 26),
+                  icon: const Icon(Icons.notifications_outlined, size: 24),
                   tooltip: 'Notifications',
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  constraints: const BoxConstraints(),
                   onPressed: () => context.push('/notifications'),
                 ),
               );
             },
           ),
           IconButton(
-            icon: const Icon(Icons.person_outline, size: 26),
+            icon: const Icon(Icons.person_outline, size: 24),
             tooltip: 'My Profile',
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            constraints: const BoxConstraints(),
             onPressed: () => context.push('/profile'),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
