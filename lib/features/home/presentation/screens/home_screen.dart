@@ -307,6 +307,99 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ),
+            Consumer(
+              builder: (context, ref, _) {
+                final categoriesAsync = ref.watch(categoriesProvider);
+                final selectedId = ref.watch(selectedCategoryIdProvider);
+
+                return categoriesAsync.when(
+                  data: (categories) {
+                    return Container(
+                      width: double.infinity,
+                      color: const Color(0xFFF2F8F3),
+                      padding: const EdgeInsets.only(top: 8, bottom: 4),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: FilterChip(
+                                label: const Text('All'),
+                                selected: selectedId == null,
+                                onSelected: (_) => ref
+                                    .read(selectedCategoryIdProvider.notifier)
+                                    .state = null,
+                                selectedColor: const Color(0xFF2A8F3A),
+                                labelStyle: TextStyle(
+                                  color: selectedId == null
+                                      ? Colors.white
+                                      : const Color(0xFF1D4F2A),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                                backgroundColor: Colors.white,
+                                side: BorderSide(
+                                  color: selectedId == null
+                                      ? const Color(0xFF2A8F3A)
+                                      : const Color(0xFFCCDDD0),
+                                ),
+                                checkmarkColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                              ),
+                            ),
+                            ...categories.map((cat) {
+                              final isSelected = selectedId == cat.id;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: FilterChip(
+                                  label: Text(cat.name),
+                                  selected: isSelected,
+                                  onSelected: (_) => ref
+                                      .read(selectedCategoryIdProvider.notifier)
+                                      .state = isSelected ? null : cat.id,
+                                  selectedColor: const Color(0xFF2A8F3A),
+                                  labelStyle: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : const Color(0xFF1D4F2A),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  side: BorderSide(
+                                    color: isSelected
+                                        ? const Color(0xFF2A8F3A)
+                                        : const Color(0xFFCCDDD0),
+                                  ),
+                                  checkmarkColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
+                );
+              },
+            ),
             Expanded(
               child: listingsAsync.when(
                 data: (listings) {
