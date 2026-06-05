@@ -12,6 +12,8 @@ final categoriesProvider = FutureProvider<List<CategoryOption>>((ref) {
 
 final listingSearchQueryProvider = StateProvider<String>((ref) => '');
 
+final selectedCategoryIdProvider = StateProvider<String?>((ref) => null);
+
 final marketplaceListingsProvider = FutureProvider<List<ListingItem>>((ref) {
   return ref.watch(listingRepositoryProvider).getMarketplaceListings();
 });
@@ -19,19 +21,28 @@ final marketplaceListingsProvider = FutureProvider<List<ListingItem>>((ref) {
 final filteredMarketplaceListingsProvider =
     Provider<AsyncValue<List<ListingItem>>>((ref) {
       final query = ref.watch(listingSearchQueryProvider).trim().toLowerCase();
+      final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
       final listingsAsync = ref.watch(marketplaceListingsProvider);
 
       return listingsAsync.whenData((listings) {
-        if (query.isEmpty) {
-          return listings;
+        var filtered = listings;
+
+        if (selectedCategoryId != null) {
+          filtered = filtered
+              .where((listing) => listing.categoryId == selectedCategoryId)
+              .toList();
         }
 
-        return listings.where((listing) {
-          final searchable =
-              '${listing.name} ${listing.description} ${listing.categoryName}'
-                  .toLowerCase();
-          return searchable.contains(query);
-        }).toList();
+        if (query.isNotEmpty) {
+          filtered = filtered.where((listing) {
+            final searchable =
+                '${listing.name} ${listing.description} ${listing.categoryName}'
+                    .toLowerCase();
+            return searchable.contains(query);
+          }).toList();
+        }
+
+        return filtered;
       });
     });
 
