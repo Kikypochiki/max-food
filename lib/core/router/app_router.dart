@@ -1,0 +1,106 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:max_food/features/auth/presentation/screens/landing_page.dart';
+import 'package:max_food/features/auth/presentation/screens/login_screen.dart';
+import 'package:max_food/features/auth/presentation/screens/sign_up_screen.dart';
+import 'package:max_food/features/home/presentation/screens/home_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/create_listing_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/farmer_listings_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/listing_detail_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/alert_management_screen.dart';
+import 'package:max_food/features/listings/presentation/screens/notification_center_screen.dart';
+import 'package:max_food/features/profile/screens/profile_screen.dart';
+import 'package:max_food/features/chat/presentation/screens/chat_inbox_screen.dart';
+import 'package:max_food/features/chat/presentation/screens/chat_room_screen.dart';
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    _subscription = stream.listen((_) => notifyListeners());
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
+final goRouterProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = GoRouterRefreshStream(
+    Supabase.instance.client.auth.onAuthStateChange,
+  );
+
+  ref.onDispose(() => refreshNotifier.dispose());
+
+  return GoRouter(
+    initialLocation: '/',
+    refreshListenable: refreshNotifier,
+    redirect: (context, state) {
+      final session = Supabase.instance.client.auth.currentSession;
+      final isAuthenticated = session != null;
+      final currentPath = state.matchedLocation;
+
+      final authRoutes = ['/', '/login', '/sign-up'];
+      final isOnAuthRoute = authRoutes.contains(currentPath);
+
+      if (!isAuthenticated && !isOnAuthRoute) return '/';
+      if (isAuthenticated && isOnAuthRoute) return '/home';
+
+      return null;
+    },
+    routes: [
+      GoRoute(path: '/', builder: (context, state) => const LandingPage()),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/sign-up',
+        builder: (context, state) => const SignUpScreen(),
+      ),
+      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      GoRoute(
+        path: '/listings/create',
+        builder: (context, state) => const CreateListingScreen(),
+      ),
+      GoRoute(
+        path: '/listings/:listingId',
+        builder: (context, state) => ListingDetailScreen(
+          listingId: state.pathParameters['listingId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/farmers/:farmerUserId/listings',
+        builder: (context, state) => FarmerListingsScreen(
+          farmerUserId: state.pathParameters['farmerUserId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/chat/inbox',
+        builder: (context, state) => const ChatInboxScreen(),
+      ),
+      GoRoute(
+        path: '/chat/room/:roomId',
+        builder: (context, state) => ChatRoomScreen(
+          roomId: state.pathParameters['roomId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationCenterScreen(),
+      ),
+      GoRoute(
+        path: '/alerts/manage',
+        builder: (context, state) => const AlertManagementScreen(),
+      ),
+    ],
+  );
+});
+
