@@ -1,11 +1,11 @@
 {
-    "name": "max_food",
-    "short_name": "max_food",
+    "name": "UbayHarvest",
+    "short_name": "UbayHarvest",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Fresh produce marketplace for farmers and buyers.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

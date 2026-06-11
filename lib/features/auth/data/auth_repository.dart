@@ -41,6 +41,10 @@ class AuthRepository {
     return _client.auth.signInWithPassword(email: email, password: password);
   }
 
+  Future<void> resetPasswordForEmail({required String email}) {
+    return _client.auth.resetPasswordForEmail(email);
+  }
+
   Future<void> signOut() {
     return _client.auth.signOut();
   }

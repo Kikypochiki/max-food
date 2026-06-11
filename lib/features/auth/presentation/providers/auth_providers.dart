@@ -19,25 +19,29 @@ class AuthController extends AsyncNotifier<void> {
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await ref.read(authRepositoryProvider).signUp(
-            email: email,
-            password: password,
-            fullName: fullName,
-          );
+      await ref
+          .read(authRepositoryProvider)
+          .signUp(email: email, password: password, fullName: fullName);
     });
     return !state.hasError;
   }
 
-  Future<bool> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> signIn({required String email, required String password}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await ref.read(authRepositoryProvider).signIn(
-            email: email,
-            password: password,
-          );
+      await ref
+          .read(authRepositoryProvider)
+          .signIn(email: email, password: password);
+    });
+    return !state.hasError;
+  }
+
+  Future<bool> resetPasswordForEmail({required String email}) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref
+          .read(authRepositoryProvider)
+          .resetPasswordForEmail(email: email);
     });
     return !state.hasError;
   }
@@ -50,5 +54,6 @@ class AuthController extends AsyncNotifier<void> {
   }
 }
 
-final authControllerProvider =
-    AsyncNotifierProvider<AuthController, void>(AuthController.new);
+final authControllerProvider = AsyncNotifierProvider<AuthController, void>(
+  AuthController.new,
+);
